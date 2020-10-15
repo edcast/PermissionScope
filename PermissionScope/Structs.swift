@@ -21,6 +21,22 @@ import Foundation
         }
     }
     
+    public var selector: Selector {
+        switch self {
+        case .contacts:         return #selector(PermissionScope.requestContacts)
+        case .events:           return #selector(PermissionScope.requestEvents)
+        case .locationAlways:   return #selector(PermissionScope.requestLocationAlways)
+        case .locationInUse:    return #selector(PermissionScope.requestLocationInUse)
+        case .notifications:    return #selector(PermissionScope.requestNotifications)
+        case .microphone:       return #selector(PermissionScope.requestMicrophone)
+        case .camera:           return #selector(PermissionScope.requestCamera)
+        case .photos:           return #selector(PermissionScope.requestPhotos)
+        case .reminders:        return #selector(PermissionScope.requestReminders)
+        case .bluetooth:        return #selector(PermissionScope.requestBluetooth)
+        case .motion:           return #selector(PermissionScope.requestMotion)
+        }
+    }
+    
     public var description: String {
         switch self {
         case .contacts:         return "Contacts"

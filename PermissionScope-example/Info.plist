@@ -28,6 +28,8 @@
 	<string>always</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>when in use</string>
+	<key>NSContactsUsageDescription</key>
+	<string>contacts permission</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-peripheral</string>

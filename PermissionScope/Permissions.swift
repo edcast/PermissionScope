@@ -16,6 +16,7 @@ import CoreBluetooth
 import CoreMotion
 import CloudKit
 import Accounts
+import UserNotifications
 
 /**
 *  Protocol for permission configurations.
@@ -27,9 +28,9 @@ import Accounts
 
 @objc public class NotificationsPermission: NSObject, Permission {
     public let type: PermissionType = .notifications
-    public let notificationCategories: Set<UIUserNotificationCategory>?
+    public let notificationCategories: Set<UNNotificationCategory>?
     
-    public init(notificationCategories: Set<UIUserNotificationCategory>? = nil) {
+    public init(notificationCategories: Set<UNNotificationCategory>? = nil) {
         self.notificationCategories = notificationCategories
     }
 }
