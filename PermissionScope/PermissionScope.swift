@@ -560,12 +560,18 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
                     completion(.unauthorized)
                 case .notDetermined:
                     completion(.unknown)
-                case .ephemeral:
-                    completion(.authorized)
-                case .provisional:
-                    completion(.authorized)
                 default:
-                    completion(.unknown)
+                    if #available(iOS 14, *) {
+                        if settings.authorizationStatus == .ephemeral {
+                            completion(.authorized)
+                        }
+                    } else if #available(iOS 12, *) {
+                        if settings.authorizationStatus == .provisional {
+                            completion(.authorized)
+                        }
+                    } else {
+                        completion(.unknown)
+                    }
                 }
             }
         }
@@ -759,8 +765,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         case .denied, .restricted:
             return .unauthorized
         case .notDetermined:
-            return .unknown
-        case .limited:
             return .unknown
         default:
             return .unknown
