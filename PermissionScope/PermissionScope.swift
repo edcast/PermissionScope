@@ -550,21 +550,24 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    @objc public func statusNotifications(completion: @escaping (PermissionStatus) -> Void) {
+    @objc public func statusNotifications() -> PermissionStatus {
+        var notificationStatus: PermissionStatus = .unknown
+        let semaphore = DispatchSemaphore(value: 0)
         UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                switch settings.authorizationStatus {
-                case .authorized:
-                    completion(.authorized)
-                case .denied:
-                    completion(.unauthorized)
-                case .notDetermined:
-                    completion(.unknown)
-                default:
-                    completion(.unknown)
-                }
+            switch settings.authorizationStatus {
+            case .authorized:
+                notificationStatus = .authorized
+            case .denied:
+                notificationStatus = .unauthorized
+            case .notDetermined:
+                notificationStatus = .unknown
+            default:
+                notificationStatus = .unknown
             }
+            semaphore.signal()
         }
+        semaphore.wait()
+        return notificationStatus
     }
     
     /**
@@ -627,37 +630,35 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Requests access to User Notifications, if necessary.
     */
     @objc public func requestNotifications() {
-        statusNotifications { [weak self] status in
-            guard let self = self else { return }
-            switch status {
-            case .unknown:
-                let notificationsPermission = self.configuredPermissions
-                    .first { $0 is NotificationsPermission } as? NotificationsPermission
+        let status = statusNotifications()
+        switch status {
+        case .unknown:
+            let notificationsPermission = self.configuredPermissions
+                .first { $0 is NotificationsPermission } as? NotificationsPermission
 
-                NotificationCenter.default.addObserver(self, selector: #selector(self.showingNotificationPermission), name: UIApplication.willResignActiveNotification, object: nil)
-                
-                self.notificationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.finishedShowingNotificationPermission), userInfo: nil, repeats: false)
-                
-                if let notificationsPermissionSet = notificationsPermission?.notificationCategories {
-                    UNUserNotificationCenter.current().setNotificationCategories(notificationsPermissionSet)
-                }
+            NotificationCenter.default.addObserver(self, selector: #selector(self.showingNotificationPermission), name: UIApplication.willResignActiveNotification, object: nil)
+            
+            self.notificationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.finishedShowingNotificationPermission), userInfo: nil, repeats: false)
+            
+            if let notificationsPermissionSet = notificationsPermission?.notificationCategories {
+                UNUserNotificationCenter.current().setNotificationCategories(notificationsPermissionSet)
+            }
 
-                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { (status, error) in
-                    DispatchQueue.main.async { [weak self] in
-                        if status {
-                            UIApplication.shared.registerForRemoteNotifications()
-                        } else {
-                            self?.showDeniedAlert(.notifications)
-                        }
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { (status, error) in
+                DispatchQueue.main.async { [weak self] in
+                    if status {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    } else {
+                        self?.showDeniedAlert(.notifications)
                     }
                 }
-            case .unauthorized:
-                self.showDeniedAlert(.notifications)
-            case .disabled:
-                self.showDisabledAlert(.notifications)
-            case .authorized:
-                self.detectAndCallback()
             }
+        case .unauthorized:
+            self.showDeniedAlert(.notifications)
+        case .disabled:
+            self.showDisabledAlert(.notifications)
+        case .authorized:
+            self.detectAndCallback()
         }
     }
     
@@ -1237,7 +1238,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     @objc func statusForPermission(_ type: PermissionType, completion: @escaping statusRequestClosure) {
         // Get permission status
         let permissionStatus: PermissionStatus
-        var callClosure: Bool = true
         switch type {
         case .locationAlways:
             permissionStatus = statusLocationAlways()
@@ -1246,11 +1246,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         case .contacts:
             permissionStatus = statusContacts()
         case .notifications:
-            permissionStatus = .unknown
-            callClosure = false
-            statusNotifications { (status) in
-                completion(status)
-            }
+            permissionStatus = statusNotifications()
         case .microphone:
             permissionStatus = statusMicrophone()
         case .camera:
@@ -1268,9 +1264,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         }
         
         // Perform completion
-        if callClosure {
-            completion(permissionStatus)
-        }
+        completion(permissionStatus)
     }
     
     /**
