@@ -32,6 +32,10 @@
 	<string>contacts permission</string>
 	<key>NSCameraUsageDescription</key>
 	<string>capture photos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>access photos</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>record audio</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-peripheral</string>

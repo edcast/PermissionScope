@@ -10,50 +10,31 @@ import Foundation
 
 /// Permissions currently supportes by PermissionScope
 @objc public enum PermissionType: Int, CustomStringConvertible {
-    case contacts, locationAlways, locationInUse, notifications, microphone, camera, photos, reminders, events, bluetooth, motion
+    case notifications, microphone, camera, photos
     
     public var prettyDescription: String {
-        switch self {
-        case .locationAlways, .locationInUse:
-            return "Location"
-        default:
-            return "\(self)"
-        }
+        return "\(self)"
     }
     
     public var selector: Selector {
         switch self {
-        case .contacts:         return #selector(PermissionScope.requestContacts)
-        case .events:           return #selector(PermissionScope.requestEvents)
-        case .locationAlways:   return #selector(PermissionScope.requestLocationAlways)
-        case .locationInUse:    return #selector(PermissionScope.requestLocationInUse)
         case .notifications:    return #selector(PermissionScope.requestNotifications)
         case .microphone:       return #selector(PermissionScope.requestMicrophone)
         case .camera:           return #selector(PermissionScope.requestCamera)
         case .photos:           return #selector(PermissionScope.requestPhotos)
-        case .reminders:        return #selector(PermissionScope.requestReminders)
-        case .bluetooth:        return #selector(PermissionScope.requestBluetooth)
-        case .motion:           return #selector(PermissionScope.requestMotion)
         }
     }
     
     public var description: String {
         switch self {
-        case .contacts:         return "Contacts"
-        case .events:           return "Events"
-        case .locationAlways:   return "LocationAlways"
-        case .locationInUse:    return "LocationInUse"
         case .notifications:    return "Notifications"
         case .microphone:       return "Microphone"
         case .camera:           return "Camera"
         case .photos:           return "Photos"
-        case .reminders:        return "Reminders"
-        case .bluetooth:        return "Bluetooth"
-        case .motion:           return "Motion"
         }
     }
     
-    static let allValues = [contacts, locationAlways, locationInUse, notifications, microphone, camera, photos, reminders, events, bluetooth, motion]
+    static let allValues = [notifications, microphone, camera, photos]
 }
 
 /// Possible statuses for a permission.

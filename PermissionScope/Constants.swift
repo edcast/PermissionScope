@@ -6,7 +6,6 @@
 //  Copyright © 2015 That Thing in Swift. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 enum Constants {
@@ -18,14 +17,6 @@ enum Constants {
     }
     
     struct NSUserDefaultsKeys {
-        static let requestedInUseToAlwaysUpgrade = "PS_requestedInUseToAlwaysUpgrade"
-        static let requestedBluetooth            = "PS_requestedBluetooth"
-        static let requestedMotion               = "PS_requestedMotion"
         static let requestedNotifications        = "PS_requestedNotifications"
     }
-    
-    struct InfoPlistKeys {
-        static let locationWhenInUse             = "NSLocationWhenInUseUsageDescription"
-        static let locationAlways                = "NSLocationAlwaysUsageDescription"
-    } 
 }
