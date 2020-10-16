@@ -390,7 +390,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusLocationAlways() -> PermissionStatus {
+    @objc public func statusLocationAlways() -> PermissionStatus {
         guard CLLocationManager.locationServicesEnabled() else { return .disabled }
 
         let status = CLLocationManager.authorizationStatus()
@@ -444,7 +444,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusLocationInUse() -> PermissionStatus {
+    @objc public func statusLocationInUse() -> PermissionStatus {
         guard CLLocationManager.locationServicesEnabled() else { return .disabled }
         
         let status = CLLocationManager.authorizationStatus()
@@ -490,7 +490,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusContacts() -> PermissionStatus {
+    @objc public func statusContacts() -> PermissionStatus {
         if #available(iOS 9.0, *) {
             let status = CNContactStore.authorizationStatus(for: .contacts)
             switch status {
@@ -550,7 +550,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusNotifications(completion: @escaping (PermissionStatus) -> Void) {
+    @objc public func statusNotifications(completion: @escaping (PermissionStatus) -> Void) {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
                 switch settings.authorizationStatus {
@@ -668,7 +668,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusMicrophone() -> PermissionStatus {
+    @objc public func statusMicrophone() -> PermissionStatus {
         let recordPermission = AVAudioSession.sharedInstance().recordPermission
         switch recordPermission {
         case AVAudioSessionRecordPermission.denied:
@@ -706,7 +706,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusCamera() -> PermissionStatus {
+    @objc public func statusCamera() -> PermissionStatus {
         let status = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         switch status {
         case .authorized:
@@ -747,7 +747,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusPhotos() -> PermissionStatus {
+    @objc public func statusPhotos() -> PermissionStatus {
         let status = PHPhotoLibrary.authorizationStatus()
         switch status {
         case .authorized:
@@ -787,7 +787,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusReminders() -> PermissionStatus {
+    @objc public func statusReminders() -> PermissionStatus {
         let status = EKEventStore.authorizationStatus(for: .reminder)
         switch status {
         case .authorized:
@@ -826,7 +826,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusEvents() -> PermissionStatus {
+    @objc public func statusEvents() -> PermissionStatus {
         let status = EKEventStore.authorizationStatus(for: .event)
         switch status {
         case .authorized:
@@ -879,7 +879,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     - returns: Permission status for the requested type.
     */
-    public func statusBluetooth() -> PermissionStatus {
+    @objc public func statusBluetooth() -> PermissionStatus {
         // if already asked for bluetooth before, do a request to get status, else wait for user to request
         if askedBluetooth{
             triggerBluetoothStatusUpdate()
@@ -1234,7 +1234,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     - parameter type:       Permission type to be requested
     - parameter completion: Closure called when the request is done.
     */
-    func statusForPermission(_ type: PermissionType, completion: @escaping statusRequestClosure) {
+    @objc func statusForPermission(_ type: PermissionType, completion: @escaping statusRequestClosure) {
         // Get permission status
         let permissionStatus: PermissionStatus
         var callClosure: Bool = true

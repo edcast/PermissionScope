@@ -30,6 +30,8 @@
 	<string>when in use</string>
 	<key>NSContactsUsageDescription</key>
 	<string>contacts permission</string>
+	<key>NSCameraUsageDescription</key>
+	<string>capture photos</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-peripheral</string>
