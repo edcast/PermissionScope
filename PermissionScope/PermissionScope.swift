@@ -561,17 +561,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
                 case .notDetermined:
                     completion(.unknown)
                 default:
-                    if #available(iOS 14, *) {
-                        if settings.authorizationStatus == .ephemeral {
-                            completion(.authorized)
-                        }
-                    } else if #available(iOS 12, *) {
-                        if settings.authorizationStatus == .provisional {
-                            completion(.authorized)
-                        }
-                    } else {
-                        completion(.unknown)
-                    }
+                    completion(.unknown)
                 }
             }
         }
