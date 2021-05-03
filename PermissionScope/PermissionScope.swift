@@ -474,9 +474,9 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     @objc public func statusMicrophone() -> PermissionStatus {
         let recordPermission = AVAudioSession.sharedInstance().recordPermission
         switch recordPermission {
-        case AVAudioSessionRecordPermission.denied:
+        case AVAudioSession.RecordPermission.denied:
             return .unauthorized
-        case AVAudioSessionRecordPermission.granted:
+        case AVAudioSession.RecordPermission.granted:
             return .authorized
         default:
             return .unknown
