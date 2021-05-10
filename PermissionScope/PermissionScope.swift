@@ -9,13 +9,14 @@
 import UIKit
 import AVFoundation
 import Photos
+import CoreLocation
 
 public typealias statusRequestClosure = (_ status: PermissionStatus) -> Void
 public typealias authClosureType      = (_ finished: Bool, _ results: [PermissionResult]) -> Void
 public typealias cancelClosureType    = (_ results: [PermissionResult]) -> Void
 typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
 
-@objc public class PermissionScope: UIViewController, UIGestureRecognizerDelegate {
+@objc public class PermissionScope: UIViewController, UIGestureRecognizerDelegate, CLLocationManagerDelegate {
 
     // MARK: UI Parameters
     
@@ -57,6 +58,12 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     /// NSUserDefaults standardDefaults lazy var
     lazy var defaults:UserDefaults = {
         return .standard
+    }()
+    
+    lazy var locationManager:CLLocationManager = {
+        let lm = CLLocationManager()
+        lm.delegate = self
+        return lm
     }()
     
     // MARK: - Internal state and resolution
@@ -271,7 +278,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     */
     @objc public func addPermission(_ permission: Permission, message: String) {
         assert(!message.isEmpty, "Including a message about your permission usage is helpful")
-        assert(configuredPermissions.count < 3, "Ask for three or fewer permissions at a time")
+        assert(configuredPermissions.count < 4, "Ask for three or fewer permissions at a time")
         assert(configuredPermissions.first { $0.type == permission.type }.isNil, "Permission for \(permission.type) already set")
         
         configuredPermissions.append(permission)
@@ -294,7 +301,12 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         button.layer.borderColor = permissionButtonBorderColor.cgColor
         button.layer.cornerRadius = permissionButtonCornerRadius
 
-        button.setTitle("Allow \(type)".localized.uppercased(), for: .normal)
+        switch type {
+        case .locationAlways, .locationInUse:
+            button.setTitle("Enable \(type.prettyDescription)".localized.uppercased(), for: .normal)
+        default:
+            button.setTitle("Allow \(type)".localized.uppercased(), for: .normal)
+        }
 
         button.addTarget(self, action: type.selector, for: .touchUpInside)
 
@@ -583,6 +595,100 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         }
     }
     
+    /**
+    Requests access to LocationAlways, if necessary.
+    */
+    @objc public func requestLocationAlways() {
+        let hasAlwaysKey:Bool = !Bundle.main
+            .object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationAlways).isNil
+        assert(hasAlwaysKey, Constants.InfoPlistKeys.locationAlways + " not found in Info.plist.")
+        
+        let status = statusLocationAlways()
+        switch status {
+        case .unknown:
+            if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+                defaults.set(true, forKey: Constants.NSUserDefaultsKeys.requestedInUseToAlwaysUpgrade)
+                defaults.synchronize()
+            }
+            locationManager.requestAlwaysAuthorization()
+        case .unauthorized:
+            self.showDeniedAlert(.locationAlways)
+        case .disabled:
+            self.showDisabledAlert(.locationInUse)
+        default:
+            break
+        }
+    }
+    
+    /**
+    Requests access to LocationWhileInUse, if necessary.
+    */
+    @objc public func requestLocationInUse() {
+        let hasWhenInUseKey :Bool = !Bundle.main
+            .object(forInfoDictionaryKey: Constants.InfoPlistKeys.locationWhenInUse).isNil
+        assert(hasWhenInUseKey, Constants.InfoPlistKeys.locationWhenInUse + " not found in Info.plist.")
+        
+        let status = statusLocationInUse()
+        switch status {
+        case .unknown:
+            locationManager.requestWhenInUseAuthorization()
+        case .unauthorized:
+            self.showDeniedAlert(.locationInUse)
+        case .disabled:
+            self.showDisabledAlert(.locationInUse)
+        default:
+            break
+        }
+    }
+    
+    /**
+    Returns the current permission status for accessing LocationAlways.
+    
+    - returns: Permission status for the requested type.
+    */
+    public func statusLocationAlways() -> PermissionStatus {
+        guard CLLocationManager.locationServicesEnabled() else { return .disabled }
+
+        let status = CLLocationManager.authorizationStatus()
+        switch status {
+        case .authorizedAlways:
+            return .authorized
+        case .restricted, .denied:
+            return .unauthorized
+        case .authorizedWhenInUse:
+            // Curious why this happens? Details on upgrading from WhenInUse to Always:
+            // [Check this issue](https://github.com/nickoneill/PermissionScope/issues/24)
+            if defaults.bool(forKey: Constants.NSUserDefaultsKeys.requestedInUseToAlwaysUpgrade) {
+                return .unauthorized
+            } else {
+                return .unknown
+            }
+        case .notDetermined:
+            return .unknown
+        }
+    }
+    
+    /**
+    Returns the current permission status for accessing LocationWhileInUse.
+    
+    - returns: Permission status for the requested type.
+    */
+    public func statusLocationInUse() -> PermissionStatus {
+        guard CLLocationManager.locationServicesEnabled() else { return .disabled }
+        
+        let status = CLLocationManager.authorizationStatus()
+        // if you're already "always" authorized, then you don't need in use
+        // but the user can still demote you! So I still use them separately.
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            return .authorized
+        case .restricted, .denied:
+            return .unauthorized
+        case .notDetermined:
+            return .unknown
+        }
+    }
+    
     // MARK: - UI
     
     /**
@@ -811,6 +917,10 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
             permissionStatus = statusCamera()
         case .photos:
             permissionStatus = statusPhotos()
+        case .locationAlways:
+            permissionStatus = statusLocationAlways()
+        case .locationInUse:
+            permissionStatus = statusLocationInUse()
         }
         
         // Perform completion
