@@ -799,6 +799,12 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         }
         return false
     }
+    
+    // MARK: Location delegate
+    
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        detectAndCallback()
+    }
 
     // MARK: - UI Helpers
     
