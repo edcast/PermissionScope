@@ -85,7 +85,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     func allAuthorized(_ completion: @escaping (Bool) -> Void ) {
         getResultsForConfig{ results in
             let result = results
-                .first { $0.status != .authorized }
+                .first { $0.status == .unknown }
                 .isNil
             completion(result)
         }
@@ -100,7 +100,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     func requiredAuthorized(_ completion: @escaping (Bool) -> Void ) {
         getResultsForConfig{ results in
             let result = results
-                .first { $0.status != .authorized }
+                .first { $0.status == .unknown }
                 .isNil
             completion(result)
         }
