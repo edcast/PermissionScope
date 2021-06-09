@@ -24,8 +24,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     public var headerLabel                 = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
     /// Header UILabel with the message "We need a couple things\r\nbefore you get started." by default.
     public var bodyLabel                   = UILabel(frame: CGRect(x: 0, y: 0, width: 240, height: 70))
-    /// Color for the close button's text color.
-    public var closeButtonTextColor        = UIColor(red: 0, green: 0.47, blue: 1, alpha: 1)
     /// Color for the permission buttons' text color.
     public var permissionButtonTextColor   = UIColor(red: 0, green: 0.47, blue: 1, alpha: 1)
     /// Color for the permission buttons' border color.
@@ -40,10 +38,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     public var buttonFont:UIFont            = .boldSystemFont(ofSize: 14)
     /// Font used for all the UILabels
     public var labelFont:UIFont             = .systemFont(ofSize: 14)
-    /// Close button. By default in the top right corner.
-    public var closeButton                  = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 32))
-    /// Offset used to position the Close button.
-    public var closeOffset                  = CGSize.zero
     /// Color used for permission buttons with authorized status
     public var authorizedButtonColor        = UIColor(red: 0, green: 0.47, blue: 1, alpha: 1)
     /// Color used for permission buttons with unauthorized status. By default, inverse of `authorizedButtonColor`.
@@ -77,8 +71,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     
     /// Callback called when permissions status change.
     public var onAuthChange: authClosureType? = nil
-    /// Callback called when the user taps on the close button.
-    public var onCancel: cancelClosureType?   = nil
     
     /// Called when the user has disabled or denied access to notifications, and we're presenting them with a help dialog.
     public var onDisabledOrDenied: cancelClosureType? = nil
@@ -131,9 +123,8 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     /**
     Designated initializer.
     
-    - parameter backgroundTapCancels: True if a tap on the background should trigger the dialog dismissal.
     */
-    public init(backgroundTapCancels: Bool) {
+    public init() {
         super.init(nibName: nil, bundle: nil)
 
 		viewControllerForAlerts = self
@@ -146,11 +137,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         // Base View
         baseView.frame = view.frame
         baseView.addSubview(contentView)
-        if backgroundTapCancels {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(cancel))
-            tap.delegate = self
-            baseView.addGestureRecognizer(tap)
-        }
+
         // Content View
         contentView.backgroundColor = UIColor.white
         contentView.layer.cornerRadius = 10
@@ -175,22 +162,8 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         bodyLabel.accessibilityIdentifier = "permissionscope.bodylabel"
 
         contentView.addSubview(bodyLabel)
-        
-        // close button
-        closeButton.setTitle("Close".localized, for: .normal)
-        closeButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-        closeButton.accessibilityIdentifier = "permissionscope.closeButton"
-        
-        contentView.addSubview(closeButton)
     }
     
-    /**
-    Convenience initializer. Same as `init(backgroundTapCancels: true)`
-    */
-    public convenience init() {
-        self.init(backgroundTapCancels: true)
-    }
-
     required public init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -230,15 +203,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         bodyLabel.frame.offsetInPlace(dx: -contentView.frame.origin.x, dy: -contentView.frame.origin.y)
         bodyLabel.frame.offsetInPlace(dx: 0, dy: -((dialogHeight/2)-100))
         
-        closeButton.center = contentView.center
-        closeButton.frame.offsetInPlace(dx: -contentView.frame.origin.x, dy: -contentView.frame.origin.y)
-        closeButton.frame.offsetInPlace(dx: 105, dy: -((dialogHeight/2)-20))
-        closeButton.frame.offsetInPlace(dx: self.closeOffset.width, dy: self.closeOffset.height)
-        if let _ = closeButton.imageView?.image {
-            closeButton.setTitle("", for: .normal)
-        }
-        closeButton.setTitleColor(closeButtonTextColor, for: .normal)
-
         let baseOffset = 95
         for (index, button) in permissionButtons.enumerated() {
             button.center = contentView.center
@@ -665,6 +629,8 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
             }
         case .notDetermined:
             return .unknown
+        @unknown default:
+            return .unknown
         }
     }
     
@@ -686,6 +652,8 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
             return .unauthorized
         case .notDetermined:
             return .unknown
+        @unknown default:
+            return .unknown
         }
     }
     
@@ -695,13 +663,11 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     Shows the modal viewcontroller for requesting access to the configured permissions and sets up the closures on it.
     
     - parameter authChange: Called when a status is detected on any of the permissions.
-    - parameter cancelled:  Called when the user taps the Close button.
     */
-    @objc public func show(_ authChange: authClosureType? = nil, cancelled: cancelClosureType? = nil) {
+    @objc public func show(_ authChange: authClosureType? = nil) {
         assert(!configuredPermissions.isEmpty, "Please add at least one permission")
 
         onAuthChange = authChange
-        onCancel = cancelled
         
         DispatchQueue.main.async {
             // call other methods that need to wait before show
@@ -807,19 +773,6 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
     }
 
     // MARK: - UI Helpers
-    
-    /**
-    Called when the users taps on the close button.
-    */
-    @objc func cancel() {
-        self.hide()
-        
-        if let onCancel = onCancel {
-            getResultsForConfig({ results in
-                onCancel(results)
-            })
-        }
-    }
     
     /**
     Shows an alert for a permission which was Denied.

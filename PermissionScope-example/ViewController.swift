@@ -34,25 +34,15 @@ class ViewController: UIViewController {
     }
         
     @IBAction func singlePerm() {
-        singlePscope.show(
-            { finished, results in
-                print("got results \(results)")
-            },
-            cancelled: { results in
-                print("thing was cancelled")
-            }
-        )
+        singlePscope.show { finished, results in
+            print("got results \(results)")
+        }
     }
     
     @IBAction func multiPerms() {
-        multiPscope.show(
-            { finished, results in
-                print("got results \(results)")
-            },
-            cancelled: { results in
-                print("thing was cancelled")
-            }
-        )
+        multiPscope.show { finished, results in
+            print("got results \(results)")
+        }
     }
 
     @IBAction func noUIPerm() {
