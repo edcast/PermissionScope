@@ -40,11 +40,3 @@ public typealias requestPermissionShowAlert     = (PermissionType) -> Void
 @objc public class PhotosPermission: NSObject, Permission {
     public let type: PermissionType = .photos
 }
-
-@objc public class LocationWhileInUsePermission: NSObject, Permission {
-    public let type: PermissionType = .locationInUse
-}
-
-@objc public class LocationAlwaysPermission: NSObject, Permission {
-    public let type: PermissionType = .locationAlways
-}
