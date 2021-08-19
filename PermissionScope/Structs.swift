@@ -10,10 +10,15 @@ import Foundation
 
 /// Permissions currently supportes by PermissionScope
 @objc public enum PermissionType: Int, CustomStringConvertible {
-    case notifications, microphone, camera, photos
+    case notifications, microphone, camera, photos, locationAlways, locationInUse
     
     public var prettyDescription: String {
-        return "\(self)"
+        switch self {
+        case .locationAlways, .locationInUse:
+            return "Location"
+        default:
+            return "\(self)"
+        }
     }
     
     public var selector: Selector {
@@ -22,6 +27,8 @@ import Foundation
         case .microphone:       return #selector(PermissionScope.requestMicrophone)
         case .camera:           return #selector(PermissionScope.requestCamera)
         case .photos:           return #selector(PermissionScope.requestPhotos)
+        case .locationAlways:   return #selector(PermissionScope.requestLocationAlways)
+        case .locationInUse:    return #selector(PermissionScope.requestLocationInUse)
         }
     }
     
@@ -31,6 +38,8 @@ import Foundation
         case .microphone:       return "Microphone"
         case .camera:           return "Camera"
         case .photos:           return "Photos"
+        case .locationAlways:   return "LocationAlways"
+        case .locationInUse:    return "LocationInUse"
         }
     }
     
