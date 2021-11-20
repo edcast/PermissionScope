@@ -258,7 +258,7 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
         button.layer.borderColor = permissionButtonBorderColor.cgColor
         button.layer.cornerRadius = permissionButtonCornerRadius
 
-        button.setTitle("Allow \(type)".localized.uppercased(), for: .normal)
+        button.setTitle("Continue".localized.uppercased(), for: .normal)
 
         button.addTarget(self, action: type.selector, for: .touchUpInside)
 
