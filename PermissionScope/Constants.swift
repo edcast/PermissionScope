@@ -19,4 +19,9 @@ enum Constants {
     struct NSUserDefaultsKeys {
         static let requestedNotifications        = "PS_requestedNotifications"
     }
+    
+    struct Strings {
+        static let iAmGood: String = NSLocalizedString("No, I'm good", comment: "")
+        static let gotoSettings: String = NSLocalizedString("Go to Settings", comment: "")
+    }
 }
