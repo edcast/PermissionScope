@@ -208,13 +208,15 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
                     let prettyDescription = type.prettyDescription
                     if currentStatus == .authorized {
                         self.setButtonAuthorizedStyle(button)
-                        button.setTitle("Allowed \(prettyDescription)".localized.uppercased(), for: .normal)
+                        let buttonTitle: String = String.localizedStringWithFormat("Allowed %@".localized, prettyDescription).uppercased()
+                        button.setTitle(buttonTitle, for: .normal)
                     } else if currentStatus == .unauthorized {
                         self.setButtonUnauthorizedStyle(button)
-                        button.setTitle("Denied \(prettyDescription)".localized.uppercased(), for: .normal)
+                        let buttonTitle: String = String.localizedStringWithFormat("Denied %@".localized, prettyDescription).uppercased()
+                        button.setTitle(buttonTitle, for: .normal)
                     } else if currentStatus == .disabled {
-                        //                setButtonDisabledStyle(button)
-                        button.setTitle("\(prettyDescription) Disabled".localized.uppercased(), for: .normal)
+                        let buttonTitle: String = String.localizedStringWithFormat("%@ Disabled".localized, prettyDescription).uppercased()
+                        button.setTitle(buttonTitle, for: .normal)
                     }
                     
                     let label = self.permissionLabels[index]
@@ -670,8 +672,10 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
             })
         }
         
-        let alert = UIAlertController(title: "Permission for \(permission.prettyDescription) was denied.".localized,
-            message: "Please enable access to \(permission.prettyDescription) in the Settings app".localized,
+        let alertTitle: String = String.localizedStringWithFormat("Permission for %@ was denied.".localized, permission.prettyDescription)
+        let alertMessage: String = String.localizedStringWithFormat("Please enable access to %@ in the Settings app".localized, permission.prettyDescription)
+        let alert = UIAlertController(title: alertTitle,
+            message: alertMessage,
             preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Constants.Strings.iAmGood,
             style: .cancel,
@@ -705,8 +709,11 @@ typealias resultsForConfigClosure     = ([PermissionResult]) -> Void
             })
         }
         
-        let alert = UIAlertController(title: "\(permission.prettyDescription) is currently disabled.".localized,
-            message: "Please enable access to \(permission.prettyDescription) in Settings".localized,
+        let alertTitle: String = String.localizedStringWithFormat("%@ is currently disabled.".localized, permission.prettyDescription)
+        let alertMessage: String = String.localizedStringWithFormat("Please enable access to %@ in Settings".localized, permission.prettyDescription)
+
+        let alert = UIAlertController(title: alertTitle,
+            message: alertMessage,
             preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Constants.Strings.iAmGood,
             style: .cancel,

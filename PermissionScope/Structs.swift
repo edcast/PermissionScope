@@ -27,10 +27,10 @@ import Foundation
     
     public var description: String {
         switch self {
-        case .notifications:    return "Notifications"
-        case .microphone:       return "Microphone"
-        case .camera:           return "Camera"
-        case .photos:           return "Photos"
+        case .notifications:    return "Notifications".localized
+        case .microphone:       return "Microphone".localized
+        case .camera:           return "Camera".localized
+        case .photos:           return "Photos".localized
         }
     }
     
@@ -43,10 +43,10 @@ import Foundation
     
     public var description: String {
         switch self {
-        case .authorized:   return "Authorized"
-        case .unauthorized: return "Unauthorized"
-        case .unknown:      return "Unknown"
-        case .disabled:     return "Disabled" // System-level
+        case .authorized:   return "Authorized".localized
+        case .unauthorized: return "Unauthorized".localized
+        case .unknown:      return "Unknown".localized
+        case .disabled:     return "Disabled".localized // System-level
         }
     }
 }
